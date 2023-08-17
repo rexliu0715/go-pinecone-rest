@@ -1,4 +1,4 @@
-package main
+package pinecone
 
 type DescribeIndexStatsRequest struct {
 	Filter *map[string]interface{} `json:"filter,omitempty"`
