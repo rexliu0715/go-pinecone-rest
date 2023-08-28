@@ -1,8 +1,6 @@
 package pinecone
 
 import (
-	"strings"
-
 	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 )
@@ -56,16 +54,16 @@ func (c *Client) Delete(request *DeleteRequest) (*DeleteResponse, error) {
 func (c *Client) Fetch(request *FetchRequest) (*FetchResponse, error) {
 	result := &FetchResponse{}
 
-	var queryParams = map[string]string{}
+	var queryParams = map[string][]string{}
 
 	// Convert ID slice to comma separated string
 	if len(request.IDs) > 0 {
-		queryParams["ids"] = strings.Join(request.IDs, ",")
+		queryParams["ids"] = request.IDs
 	}
 
-	// Check if Namespace is not nil before dereferencing
+	// Check if Namespace is not nil before referencing
 	if request.Namespace != nil {
-		queryParams["namespace"] = *request.Namespace
+		queryParams["namespace"] = []string{*request.Namespace}
 	}
 
 	_, err := c.makeGetRequest("/vectors/fetch", queryParams, result)
@@ -109,21 +107,16 @@ func (c *Client) makePostRequest(endpoint string, body interface{}, result inter
 	return resp, err
 }
 
-func (c *Client) makeGetRequest(endpoint string, queryParams map[string]string, result interface{}) (*resty.Response, error) {
+func (c *Client) makeGetRequest(endpoint string, queryParams map[string][]string, result interface{}) (*resty.Response, error) {
 	var errResp *ErrorResponse
 
 	request := c.Resty.SetDebug(c.Debug).
 		R().
 		EnableTrace().
+		SetQueryParamsFromValues(queryParams).
 		SetError(&errResp).
 		SetResult(&result).
 		SetHeaders(c.GetHeaders())
-
-	if queryParams == nil {
-		for k, v := range queryParams {
-			request.QueryParam.Add(k, v)
-		}
-	}
 
 	resp, err := request.Get(c.BaseURL() + endpoint)
 
