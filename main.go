@@ -1,7 +1,6 @@
 package pinecone
 
 import (
-	"log"
 	"strings"
 
 	"github.com/go-resty/resty/v2"
@@ -69,7 +68,6 @@ func (c *Client) Fetch(request *FetchRequest) (*FetchResponse, error) {
 		queryParams["namespace"] = *request.Namespace
 	}
 
-	log.Println(queryParams)
 	_, err := c.makeGetRequest("/vectors/fetch", queryParams, result)
 
 	return result, err
@@ -113,13 +111,19 @@ func (c *Client) makePostRequest(endpoint string, body interface{}, result inter
 
 func (c *Client) makeGetRequest(endpoint string, queryParams map[string]string, result interface{}) (*resty.Response, error) {
 	var errResp *ErrorResponse
+
 	request := c.Resty.SetDebug(c.Debug).
 		R().
 		EnableTrace().
-		SetHeaders(c.GetHeaders()).
-		SetQueryParams(queryParams).
 		SetError(&errResp).
-		SetResult(&result)
+		SetResult(&result).
+		SetHeaders(c.GetHeaders())
+
+	if queryParams == nil {
+		for k, v := range queryParams {
+			request.QueryParam.Add(k, v)
+		}
+	}
 
 	resp, err := request.Get(c.BaseURL() + endpoint)
 
