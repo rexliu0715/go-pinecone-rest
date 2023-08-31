@@ -2,12 +2,15 @@ package pinecone
 
 import "github.com/go-resty/resty/v2"
 
-type Client struct {
+type Config struct {
 	Index       string
 	Environment string
 	APIKey      string
 	Debug       bool
-	Resty       *resty.Client
+}
+type Client struct {
+	Config
+	Resty *resty.Client
 }
 
 type DescribeIndexStatsRequest struct {

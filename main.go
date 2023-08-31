@@ -5,13 +5,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewClient(index, environment, apiKey string, debug bool) *Client {
+func NewClient(config Config) *Client {
 	return &Client{
-		Index:       index,
-		Environment: environment,
-		APIKey:      apiKey,
-		Debug:       debug,
-		Resty:       resty.New(),
+		Config: config,
+		Resty:  resty.New(),
 	}
 }
 
