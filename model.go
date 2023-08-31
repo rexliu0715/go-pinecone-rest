@@ -3,10 +3,10 @@ package pinecone
 import "github.com/go-resty/resty/v2"
 
 type Config struct {
-	Index       string
-	Environment string
-	APIKey      string
-	Debug       bool
+	Index       string `json:"index,omitempty"`
+	Environment string `json:"environment,omitempty"`
+	APIKey      string `json:"apiKey,omitempty"`
+	Debug       bool   `json:"debug,omitempty"`
 }
 type Client struct {
 	Config
